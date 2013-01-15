@@ -8,7 +8,9 @@
     <script type="text/javascript">
 
       $(document).ready(function() {
+        getDrillerJson();
         $(".nojs").hide();
+        $(".driller").change( function() { getDrillerJson(); });
       });
 
 function collectParams() {
@@ -16,66 +18,17 @@ function collectParams() {
   $("select.driller").each(function() {
     if ($(this).val()) {
       var box = "input:checked#" + this.id + "box";
+      var v = Math.abs($(this).val());
       query += ((query === "") ? "" : "&")
             + this.id + "="
-            + ($(box).length > 0 ? (-1) * $(this).val() : $(this).val());
+            + ($(box).length > 0 ? (-1) * v : v);
     }
   });
   return query;
 }
 
 function getDrillerJson() {
-  $.ajax({
-dataType: "jsonp",
-jsonp: "callback",
-jsonpCallback: "updateSelectors",
-url: "http://localhost:3003/q",
-data: collectParams(),
-  });
-}
-
-updateSimpleSelector = function(data, f1, f2, f3) {
-  var g = '<option value="">';
-  if (data[f1].Groups != undefined) {
-    g += 'Select an '+f2+'<\/option>';
-    for (d in data[f1].Groups) {
-      g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
-    }
-  } else if (data[f1].Entries.length > 0) {
-    g += 'Select a '+f2+'<\/option>';
-    for (d in data[f1].Entries) {
-      var v = data[f1].Entries[d]["Value"];
-      g += "<option value=\""+v+"\">"+v+"<\/option>";
-    }
-  }
-  $('select#'+f3).empty().append(g);
-}
-
-updateSelector = function(data, f1, f2) {
-  if ($('select#'+f2+' option:selected').val() !== "") {
-    if (data[f1].Entries.length = 1) {
-      $('select#'+f2+' option').filter(function() {
-        return ($(this).val() && !$(this).attr('selected'))
-          }).remove();
-    }
-    return;
-  }
-  var g = '<option value="">';
-  if (data[f1].Groups != undefined) {
-    g += 'Select a '+f2+'<\/option>';
-    for (d in data[f1].Groups) {
-      g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
-    }
-  } else if (data[f1].Entries.length > 0) {
-    g += 'Select an '+f2+'<\/option>';
-    for (d in data[f1].Entries) {
-      g += "<option value=\""+data[f1].Entries[d].Id+"\">"+data[f1].Entries[d].Name+"<\/option>";
-    }
-  }
-  $('select#'+f2).empty().append(g);
-}
-
-updateSelectors = function(data){
+  $.getJSON("http://bohr/driller/q", collectParams(), function(data){
   updateSelector(data, "Authors", "author");
   updateSelector(data, "Leaders", "leader");
   updateSelector(data, "Parties", "party");
@@ -94,7 +47,59 @@ updateSelectors = function(data){
   updateSimpleSelector(data, "Longitudes", "Longitude", "longitude");
   updateSimpleSelector(data, "FromRanges", "FromRange", "fromRange");
   updateSimpleSelector(data, "UpToRanges", "UpToRange", "upToRange");
+  });
 }
+
+updateSelector = function(data, f1, f2) {
+  if ($('select#'+f2+' option:selected').val() !== "") {
+    if (data[f1].Entries.length === 1) {
+      $('select#'+f2).empty().append(
+          "<option value=\"\">Clear filter<\/option>" +
+          "<option value=\""+data[f1].Entries[0]["Id"]+"\" selected>"+data[f1].Entries[0]["Name"]+"<\/option>");
+    }
+    return;
+  }
+  var g = '<option value="">';
+  if (data[f1].Groups != undefined) {
+    g += 'Select a '+f2+'<\/option>';
+    for (d in data[f1].Groups) {
+      g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
+    }
+  } else if (data[f1].Entries.length > 0) {
+    g += 'Select '+f2+'<\/option>';
+    for (d in data[f1].Entries) {
+      g += "<option value=\""+data[f1].Entries[d].Id+"\">"+data[f1].Entries[d].Name+"<\/option>";
+    }
+  }
+  $('select#'+f2).empty().append(g);
+}
+
+updateSimpleSelector = function(data, f1, f2, f3) {
+  if ($('select#'+f3+' option:selected').val() !== "") {
+    if (data[f1].Entries.length === 1) {
+      var v = data[f1].Entries[0]["Value"];
+      $('select#'+f3).empty().append(
+          "<option value=\"\">Clear filter<\/option>" +
+          "<option value=\""+v+"\" selected>"+v+"<\/option>");
+    }
+    return;
+  }
+  var g = '<option value="">';
+  if (data[f1].Groups != undefined) {
+    g += 'Select '+f2+'<\/option>';
+    for (d in data[f1].Groups) {
+      g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
+    }
+  } else if (data[f1].Entries.length > 0) {
+    g += 'Select '+f2+'<\/option>';
+    for (d in data[f1].Entries) {
+      var v = data[f1].Entries[d]["Value"];
+      g += "<option value=\""+v+"\">"+v+"<\/option>";
+    }
+  }
+  $('select#'+f3).empty().append(g);
+}
+
     </script>
     <title>JS-Test</title>
   </head>
@@ -172,5 +177,6 @@ updateSelectors = function(data){
     </p>
       <p><input class="nojs" type="submit" value="Continue →"></p>
     </form>
+    <p id=scenario></p>
   </body>
 </html>
