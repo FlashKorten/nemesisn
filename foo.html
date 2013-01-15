@@ -66,19 +66,11 @@ updateSelector = function(data, f1, f2) {
     for (d in data[f1].Groups) {
       g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
     }
-  } else if (data[f1].Entries.length > 1) {
+  } else if (data[f1].Entries.length > 0) {
     g += 'Select an '+f2+'<\/option>';
     for (d in data[f1].Entries) {
       g += "<option value=\""+data[f1].Entries[d].Id+"\">"+data[f1].Entries[d].Name+"<\/option>";
     }
-  } else if (data[f1].Entries.length === 1){
-    g += 'Unselect '+f2+'<\/option>';
-    var v = data[f1].Entries[0].Id;
-    if (v < 0) {
-      v *= -1;
-      $("input[name="+f2+"]").attr('checked', true);
-    }
-    g += "<option value=\""+data[f1].Entries[0].Id+"\">"+data[f1].Entries[0].Name+"<\/option>";
   }
   $('select#'+f2).empty().append(g);
 }
