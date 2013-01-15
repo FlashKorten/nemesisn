@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"> </script> -->
+    <script type="text/javascript" src="jquery.min.js"> </script>
+    <script type="text/javascript">
+
+      $(document).ready(function() {
+        $(".nojs").hide();
+      });
+
+function collectParams() {
+  var query = "";
+  $("select.driller").each(function() {
+    if ($(this).val()) {
+      var box = "input:checked#" + this.id + "box";
+      query += ((query === "") ? "" : "&")
+            + this.id + "="
+            + ($(box).length > 0 ? (-1) * $(this).val() : $(this).val());
+    }
+  });
+  return query;
+}
+
+function getDrillerJson() {
+  $.ajax({
+dataType: "jsonp",
+jsonp: "callback",
+jsonpCallback: "updateSelectors",
+url: "http://localhost:3003/q",
+data: collectParams(),
+  });
+}
+
+updateSimpleSelector = function(data, f1, f2, f3) {
+  var g = '<option value="">';
+  if (data[f1].Groups != undefined) {
+    g += 'Select an '+f2+'<\/option>';
+    for (d in data[f1].Groups) {
+      g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
+    }
+  } else if (data[f1].Entries.length > 0) {
+    g += 'Select a '+f2+'<\/option>';
+    for (d in data[f1].Entries) {
+      var v = data[f1].Entries[d]["Value"];
+      g += "<option value=\""+v+"\">"+v+"<\/option>";
+    }
+  }
+  $('select#'+f3).empty().append(g);
+}
+
+updateSelector = function(data, f1, f2) {
+  if ($('select#'+f2+' option:selected').val() !== "") {
+    if (data[f1].Entries.length = 1) {
+      $('select#'+f2+' option').filter(function() {
+        return ($(this).val() && !$(this).attr('selected'))
+          }).remove();
+    }
+    return;
+  }
+  var g = '<option value="">';
+  if (data[f1].Groups != undefined) {
+    g += 'Select a '+f2+'<\/option>';
+    for (d in data[f1].Groups) {
+      g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
+    }
+  } else if (data[f1].Entries.length > 1) {
+    g += 'Select an '+f2+'<\/option>';
+    for (d in data[f1].Entries) {
+      g += "<option value=\""+data[f1].Entries[d].Id+"\">"+data[f1].Entries[d].Name+"<\/option>";
+    }
+  } else if (data[f1].Entries.length === 1){
+    g += 'Unselect '+f2+'<\/option>';
+    var v = data[f1].Entries[0].Id;
+    if (v < 0) {
+      v *= -1;
+      $("input[name="+f2+"]").attr('checked', true);
+    }
+    g += "<option value=\""+data[f1].Entries[0].Id+"\">"+data[f1].Entries[0].Name+"<\/option>";
+  }
+  $('select#'+f2).empty().append(g);
+}
+
+updateSelectors = function(data){
+  updateSelector(data, "Authors", "author");
+  updateSelector(data, "Leaders", "leader");
+  updateSelector(data, "Parties", "party");
+  updateSelector(data, "Sides", "side");
+
+  updateSelector(data, "Engines", "engine");
+  updateSelector(data, "Genres", "genre");
+  updateSelector(data, "Mechanics", "mechanic");
+  updateSelector(data, "Publishers", "publisher");
+  updateSelector(data, "Series", "series");
+  updateSelector(data, "Themes", "theme");
+
+  updateSimpleSelector(data, "FromYears", "FromYear", "fromYear");
+  updateSimpleSelector(data, "UpToYears", "UpToYear", "upToYear");
+  updateSimpleSelector(data, "Latitudes", "Latitude", "latitude");
+  updateSimpleSelector(data, "Longitudes", "Longitude", "longitude");
+  updateSimpleSelector(data, "FromRanges", "FromRange", "fromRange");
+  updateSimpleSelector(data, "UpToRanges", "UpToRange", "upToRange");
+}
+    </script>
+    <title>JS-Test</title>
+  </head>
+  <body id="Schnasenfoo" onload="">
+    <form action="foo_submit" method="get" accept-charset="utf-8">
+    <p id="mappedToScenario">
+      <select class="driller" id="author">
+        <option value="">Author</option>
+      </select>
+      <input type="checkbox" class="driller" name="author" id="authorbox">Exclude?
+      <select class="driller" id="game">
+        <option value="">Game</option>
+        <option value="1">Foo</option>
+      </select>
+      <input type="checkbox" class="driller" name="game" id="gamebox">Exclude?
+      <select class="driller" id="leader">
+        <option value="">Leader</option>
+      </select>
+      <input type="checkbox" class="driller" name="leader" id="leaderbox">Exclude?
+      <select class="driller" id="party">
+        <option value="">Party</option>
+        <option value="42">Life</option>
+      </select>
+      <input type="checkbox" class="driller" name="party" id="partybox">Exclude?
+      <select class="driller" id="side">
+        <option value="">Side</option>
+      </select>
+      <input type="checkbox" class="driller" name="side" id="sidebox">Exclude?
+    </p>
+    <p id="mappedToGame">
+      <select class="driller" id="engine">
+        <option value="">Engine</option>
+      </select>
+      <input type="checkbox" class="driller" name="engine" id="enginebox">Exclude?
+      <select class="driller" id="genre">
+        <option value="">Genre</option>
+      </select>
+      <input type="checkbox" class="driller" name="genre" id="genrebox">Exclude?
+      <select class="driller" id="mechanic">
+        <option value="">Mechanic</option>
+      </select>
+      <input type="checkbox" class="driller" name="mechanic" id="mechanicbox">Exclude?
+      <select class="driller" id="publisher">
+        <option value="">Publisher</option>
+      </select>
+      <input type="checkbox" class="driller" name="publisher" id="publisherbox">Exclude?
+      <select class="driller" id="series">
+        <option value="">Series</option>
+      </select>
+      <input type="checkbox" class="driller" name="series" id="seriesbox">Exclude?
+      <select class="driller" id="theme">
+        <option value="">Theme</option>
+      </select>
+      <input type="checkbox" class="driller" name="theme" id="themebox">Exclude?
+    </p>
+    <p id="numberSelectors">
+      <select class="driller" id="fromYear">
+        <option value="">FromYear</option>
+      </select>
+      <select class="driller" id="upToYear">
+        <option value="">UpToYear</option>
+      </select>
+      <select class="driller" id="latitude">
+        <option value="">Latitude</option>
+      </select>
+      <select class="driller" id="longitude">
+        <option value="">Longitude</option>
+      </select>
+      <select class="driller" id="fromRange">
+        <option value="">FromRange</option>
+      </select>
+      <select class="driller" id="upToRange">
+        <option value="">UpToRange</option>
+      </select>
+    </p>
+      <p><input class="nojs" type="submit" value="Continue →"></p>
+    </form>
+  </body>
+</html>
