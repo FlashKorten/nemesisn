@@ -9,8 +9,8 @@
 
       $(document).ready(function() {
         getDrillerJson();
-        $(".nojs").hide();
-        $(".driller").change( function() { getDrillerJson(); });
+        $('.nojs').hide();
+        $('.driller').change( function() { getDrillerJson(); });
       });
 
 function collectParams() {
@@ -29,75 +29,67 @@ function collectParams() {
 
 function getDrillerJson() {
   $.getJSON("http://bohr/driller/q", collectParams(), function(data){
-  updateSelector(data, "Authors", "author");
-  updateSelector(data, "Leaders", "leader");
-  updateSelector(data, "Parties", "party");
-  updateSelector(data, "Sides", "side");
+  updateSelector(data, "Authors", "author", getId, getName);
+  updateSelector(data, "Leaders", "leader", getId, getName);
+  updateSelector(data, "Parties", "party", getId, getName);
+  updateSelector(data, "Sides", "side", getId, getName);
 
-  updateSelector(data, "Engines", "engine");
-  updateSelector(data, "Genres", "genre");
-  updateSelector(data, "Mechanics", "mechanic");
-  updateSelector(data, "Publishers", "publisher");
-  updateSelector(data, "Series", "series");
-  updateSelector(data, "Themes", "theme");
+  updateSelector(data, "Engines", "engine", getId, getName);
+  updateSelector(data, "Genres", "genre", getId, getName);
+  updateSelector(data, "Mechanics", "mechanic", getId, getName);
+  updateSelector(data, "Publishers", "publisher", getId, getName);
+  updateSelector(data, "Series", "series", getId, getName);
+  updateSelector(data, "Themes", "theme", getId, getName);
 
-  updateSimpleSelector(data, "FromYears", "FromYear", "fromYear");
-  updateSimpleSelector(data, "UpToYears", "UpToYear", "upToYear");
-  updateSimpleSelector(data, "Latitudes", "Latitude", "latitude");
-  updateSimpleSelector(data, "Longitudes", "Longitude", "longitude");
-  updateSimpleSelector(data, "FromRanges", "FromRange", "fromRange");
-  updateSimpleSelector(data, "UpToRanges", "UpToRange", "upToRange");
+  updateSelector(data, "FromYears", "fromYear", getValue, getValue);
+  updateSelector(data, "UpToYears", "upToYear", getValue, getValue);
+  updateSelector(data, "Latitudes", "latitude", getValue, getValue);
+  updateSelector(data, "Longitudes", "longitude", getValue, getValue);
+  updateSelector(data, "FromRanges", "fromRange", getValue, getValue);
+  updateSelector(data, "UpToRanges", "upToRange", getValue, getValue);
+
+  updateSelector(data, "Games", "game", getId, getGameValue);
   });
 }
 
-updateSelector = function(data, f1, f2) {
+getId = function(data){
+  return data["Id"];
+}
+
+getName = function(data){
+  return data["Name"];
+}
+
+getValue = function(data){
+  return data["Value"];
+}
+
+getGameValue = function(data){
+  return data["Title"]+((data["Subtitle"].length > 0) ? " &mdash; "+data["Subtitle"] : "");
+}
+
+updateSelector = function(data, f1, f2, idGetter, valueGetter) {
   if ($('select#'+f2+' option:selected').val() !== "") {
     if (data[f1].Entries.length === 1) {
+      var dp = data[f1].Entries[0];
       $('select#'+f2).empty().append(
           "<option value=\"\">Clear filter<\/option>" +
-          "<option value=\""+data[f1].Entries[0]["Id"]+"\" selected>"+data[f1].Entries[0]["Name"]+"<\/option>");
+          "<option value=\""+idGetter(dp)+"\" selected>"+valueGetter(dp)+"<\/option>");
     }
     return;
   }
-  var g = '<option value="">';
+  var g = '<option value="">'+f1+'<\/option>';
   if (data[f1].Groups != undefined) {
-    g += 'Select a '+f2+'<\/option>';
     for (d in data[f1].Groups) {
-      g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
+      g += "<option class='grp' value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
     }
   } else if (data[f1].Entries.length > 0) {
-    g += 'Select '+f2+'<\/option>';
     for (d in data[f1].Entries) {
-      g += "<option value=\""+data[f1].Entries[d].Id+"\">"+data[f1].Entries[d].Name+"<\/option>";
+      var dp = data[f1].Entries[d];
+      g += "<option value=\""+idGetter(dp)+"\">"+valueGetter(dp)+"<\/option>";
     }
   }
   $('select#'+f2).empty().append(g);
-}
-
-updateSimpleSelector = function(data, f1, f2, f3) {
-  if ($('select#'+f3+' option:selected').val() !== "") {
-    if (data[f1].Entries.length === 1) {
-      var v = data[f1].Entries[0]["Value"];
-      $('select#'+f3).empty().append(
-          "<option value=\"\">Clear filter<\/option>" +
-          "<option value=\""+v+"\" selected>"+v+"<\/option>");
-    }
-    return;
-  }
-  var g = '<option value="">';
-  if (data[f1].Groups != undefined) {
-    g += 'Select '+f2+'<\/option>';
-    for (d in data[f1].Groups) {
-      g += "<option value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
-    }
-  } else if (data[f1].Entries.length > 0) {
-    g += 'Select '+f2+'<\/option>';
-    for (d in data[f1].Entries) {
-      var v = data[f1].Entries[d]["Value"];
-      g += "<option value=\""+v+"\">"+v+"<\/option>";
-    }
-  }
-  $('select#'+f3).empty().append(g);
 }
 
     </script>
@@ -110,18 +102,12 @@ updateSimpleSelector = function(data, f1, f2, f3) {
         <option value="">Author</option>
       </select>
       <input type="checkbox" class="driller" name="author" id="authorbox">Exclude?
-      <select class="driller" id="game">
-        <option value="">Game</option>
-        <option value="1">Foo</option>
-      </select>
-      <input type="checkbox" class="driller" name="game" id="gamebox">Exclude?
       <select class="driller" id="leader">
         <option value="">Leader</option>
       </select>
       <input type="checkbox" class="driller" name="leader" id="leaderbox">Exclude?
       <select class="driller" id="party">
         <option value="">Party</option>
-        <option value="42">Life</option>
       </select>
       <input type="checkbox" class="driller" name="party" id="partybox">Exclude?
       <select class="driller" id="side">
@@ -177,6 +163,11 @@ updateSimpleSelector = function(data, f1, f2, f3) {
     </p>
       <p><input class="nojs" type="submit" value="Continue →"></p>
     </form>
-    <p id=scenario></p>
+    <p>
+      <select class="driller" id="game">
+        <option value="">Game</option>
+      </select>
+      <input type="checkbox" class="driller" name="game" id="gamebox">Exclude?
+    </p>
   </body>
 </html>
