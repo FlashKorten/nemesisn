@@ -78,12 +78,17 @@ updateSelector = function(data, f1, f2, idGetter, valueGetter) {
     }
     return;
   }
-  var g = '<option value="">'+f1+'<\/option>';
+  var g = '<option value=""><div class="cHead"><div class="cTit">'+f1+'<\/div><div class=cNum>(';
   if (data[f1].Groups != undefined) {
+    var gr = "";
+    var num = 0;
     for (d in data[f1].Groups) {
-      g += "<option class='grp' value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
+      num += data[f1].Groups[d]["Matches"];
+      gr += "<option class='grp' value=\""+data[f1].Groups[d].GroupId+"\">"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/option>";
     }
-  } else if (data[f1].Entries.length > 0) {
+    g += num+')<\/div><\/div><\/option>'+gr;
+  } else if (data[f1].Entries.length >= 0) {
+    g += data[f1].Entries.length+')<\/div><\/div><\/option>'
     for (d in data[f1].Entries) {
       var dp = data[f1].Entries[d];
       g += "<option value=\""+idGetter(dp)+"\">"+valueGetter(dp)+"<\/option>";
