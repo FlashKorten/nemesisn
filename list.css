@@ -1,0 +1,4 @@
+* 					 { margin: 0; padding: 0; }
+body				 { font: 14px Helvetica, Sans-Serif; }
+.hidden      { display: none; }
+ul.selector li div.value {display: none; }
