@@ -153,22 +153,34 @@ updateSelector = function(data, f1, f2) {
   if (data[f1].Groups != undefined) {
     var gr = "";
     var num = 0;
+    var hideExclusion = false;
     for (d in data[f1].Groups) {
       num += data[f1].Groups[d]["Matches"];
       gr += "<li class='group hidden'><div class='value'>"+data[f1].Groups[d].GroupId+"<\/div><div class='text'><a href='#'>"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/a><\/div><\/li>";
     }
     g += num+")<\/div><\/li>"+gr;
-  } else if (data[f1].Entries.length >= 0) {
+  } else if (data[f1].Entries.length > 1) {
     g += data[f1].Entries.length+')<\/div><\/li>'
     for (d in data[f1].Entries) {
       var dp = data[f1].Entries[d];
       g += "<li class='entry hidden'><div class='value'>"+idGetter(dp)+"<\/div><div class='text'><a href='#'>"+valueGetter(dp)+"<\/a><\/div><\/li>";
     }
+  } else if (data[f1].Entries.length === 1) {
+      hideExclusion = true;
+      var dp = data[f1].Entries[0];
+      g = "<li class='entry'><div class='text unselectable'>"+valueGetter(dp)+"<\/div><\/li>";
+  } else if (data[f1].Entries.length === 0) {
+      hideExclusion = true;
+      g = "<li class='entry'><div class='text unselectable'>No matches...<\/div><\/li>";
   }
   var target = $('#' + f2);
   target.empty().append(g);
   if (target.siblings('div.exclude').length > 0) {
-    target.siblings('div.exclude').removeClass('hidden');
+    if (hideExclusion) {
+      target.siblings('div.exclude').addClass('hidden');
+    } else {
+      target.siblings('div.exclude').removeClass('hidden');
+    }
   }
 }
 
@@ -176,10 +188,10 @@ toggleExclusion = function(e) {
   var list = $(e).siblings('ul.selector');
   if (list.hasClass('exclusive')) {
     list.removeClass('exclusive');
-    e.innerText = "Exclude?";
+    e.innerText = "[-]";
   } else {
     list.addClass('exclusive');
-    e.innerText = "Include?";
+    e.innerText = "[+]";
   }
   getDrillerJson();
 }
@@ -211,82 +223,82 @@ getClearFilterLI = function() {
     <div class="block">
       <div class='selector'>
         <div class='info'>Author:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='author'>
           <li><div class='value'></div><div class='text'>Author</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Side:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='side'>
           <li><div class='value'></div><div class='text'>Side</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Party:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='party'>
           <li><div class='value'></div><div class='text'>Party</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Leader:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='leader'>
           <li><div class='value'></div><div class='text'>Leader</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Game:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector games' id='game'>
           <li><div class='value'></div><div class='text'>Game</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
     </div>
     <div class="block">
       <div class='selector'>
         <div class='info'>Publisher:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='publisher'>
           <li><div class='value'></div><div class='text'>Publisher</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Series:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='series'>
           <li><div class='value'></div><div class='text'>Series</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Engine:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='engine'>
           <li><div class='value'></div><div class='text'>Engine</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Theme:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='theme'>
           <li><div class='value'></div><div class='text'>Theme</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Mechanic:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='mechanic'>
           <li><div class='value'></div><div class='text'>Mechanic</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
         <div class='info'>Genre:</div>
+        <div class='exclude'>[-]</div>
         <ul class='selector map' id='genre'>
           <li><div class='value'></div><div class='text'>Genre</div></li>
         </ul>
-        <div class='exclude'>Exclude?</div>
       </div>
     </div>
     <div class="block">
