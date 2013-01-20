@@ -12,7 +12,7 @@ div.block                                    { display: inline-block; position: 
 div.selector                                 { float: left; }
 div.selector ul.selector.exclusive           { color: #f00; }
 
-div.selector div.info                        { font-weight: bold; background: #ddd; }
+div.selector div.info, div.selector div.exclude { font-weight: bold; background: #ddd; }
 div.selector ul.selector li div.text a       { text-decoration: none; color: #000; }
 
 ul.scenario li.numbers                       { font-weight: bold; }
