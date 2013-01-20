@@ -28,28 +28,41 @@ function collectParams() {
 
 function getDrillerJson() {
   $.getJSON("http://bohr/driller/q", collectParams(), function(data){
-  updateSelector(data, "Authors", "author", getId, getName);
-  updateSelector(data, "Publishers", "publisher", getId, getName);
-  updateSelector(data, "Genres", "genre", getId, getName);
-  updateSelector(data, "Series", "series", getId, getName);
-  updateSelector(data, "Mechanics", "mechanic", getId, getName);
-  updateSelector(data, "Themes", "theme", getId, getName);
-  updateSelector(data, "Engines", "engine", getId, getName);
-  updateSelector(data, "Parties", "party", getId, getName);
+  updateSelector(data, "Authors", "author");
+  updateSelector(data, "Publishers", "publisher");
+  updateSelector(data, "Genres", "genre");
+  updateSelector(data, "Series", "series");
+  updateSelector(data, "Mechanics", "mechanic");
+  updateSelector(data, "Themes", "theme");
+  updateSelector(data, "Engines", "engine");
+  updateSelector(data, "Parties", "party");
+  updateSelector(data, "Latitudes", "latitude");
+  updateSelector(data, "Longitudes", "longitude");
+  updateSelector(data, "FromYears", "fromYear");
+  updateSelector(data, "UpToYears", "upToYear");
+  updateSelector(data, "FromRanges", "fromRange");
+  updateSelector(data, "UpToRanges", "upToRange");
   $('#info').empty().append('#scenarios: '+ data["NoResults"]);
   });
 }
 
 getGroupInfo = function(e) {
   var category = e.parent().attr('id') + "Group/";
+  if (e.parent().hasClass('map')) {
+    var idGetter = getId;
+    var valueGetter = getName;
+  } else {
+    var idGetter = getValue;
+    var valueGetter = getValue;
+  }
   var catId = e.find('div.value').text();
   console.log("getGroupInfo: "+ category +" = "+catId);
   $.getJSON("http://bohr/driller/"+category+catId, collectParams(), function(data) {
     var g = "<ul>";
     for (d in data) {
       console.log(d);
-      console.log("Foo: "+data[d]["Id"]+", Bar: "+data[d]["Name"]);
-      g += "<li class='entry'><div class='value'>"+data[d]["Id"]+"<\/div><div class='text'>"+data[d]["Name"]+"<\/div><\/li>";
+      console.log("Foo: "+idGetter(data[d])+", Bar: "+valueGetter(data[d]));
+      g += "<li class='entry'><div class='value'>"+idGetter(data[d])+"<\/div><div class='text'>"+valueGetter(data[d])+"<\/div><\/li>";
     }
     e.removeClass("group");
     e.empty().append(g + "<\/ul>");
@@ -92,7 +105,15 @@ updateList = function(item) {
   }
 }
 
-updateSelector = function(data, f1, f2, idGetter, valueGetter) {
+updateSelector = function(data, f1, f2) {
+  var category = $('#'+f2+'.selector');
+  if (category.hasClass('map')) {
+    var idGetter = getId;
+    var valueGetter = getName;
+  } else {
+    var idGetter = getValue;
+    var valueGetter = getValue;
+  }
   var selected = $('#'+f2+'.selector li.selected');
   if (selected.length > 0 && selected.find('div.value').text() !== "") {
     var dp = data[f1].Entries[0];
@@ -145,43 +166,73 @@ getClearFilterLI = function() {
   </head>
   <body>
       <div class='selector'>
-        <ul class='selector' id='author'>
+        <ul class='selector map' id='author'>
           <li><div class='value'></div><div class='text'>Author</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector' id='publisher'>
+        <ul class='selector map' id='publisher'>
           <li><div class='value'></div><div class='text'>Publisher</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector' id='series'>
+        <ul class='selector map' id='series'>
           <li><div class='value'></div><div class='text'>Series</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector' id='engine'>
+        <ul class='selector map' id='engine'>
           <li><div class='value'></div><div class='text'>Engine</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector' id='theme'>
+        <ul class='selector map' id='theme'>
           <li><div class='value'></div><div class='text'>Theme</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector' id='mechanic'>
+        <ul class='selector map' id='mechanic'>
           <li><div class='value'></div><div class='text'>Mechanic</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector' id='genre'>
+        <ul class='selector map' id='genre'>
           <li><div class='value'></div><div class='text'>Genre</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector' id='party'>
+        <ul class='selector map' id='party'>
           <li><div class='value'></div><div class='text'>Party</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector value' id='latitude'>
+          <li><div class='value'></div><div class='text'>Latitude</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector value' id='longitude'>
+          <li><div class='value'></div><div class='text'>Longitude</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector value' id='fromYear'>
+          <li><div class='value'></div><div class='text'>FromYear</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector value' id='upToYear'>
+          <li><div class='value'></div><div class='text'>UpToYear</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector value' id='fromRange'>
+          <li><div class='value'></div><div class='text'>FromRange</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector value' id='upToRange'>
+          <li><div class='value'></div><div class='text'>UpToRange</div></li>
         </ul>
       </div>
     <p id="info"></p>
