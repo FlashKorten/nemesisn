@@ -10,19 +10,24 @@
       $(document).ready(function() {
         getDrillerJson();
         $('body').on('click', 'ul.selector li', function() { updateList(this) });
+        $('body').on('click', 'div.selector div.exclude', function() {toggleExclusion(this)} );
       });
 
 function collectParams() {
   var query = "";
   $('ul.selector li.entry.selected').each(function() {
-    var category = $(this).parent().attr('id');
+    var p = $(this).parent();
     var value = $(this).find('div.value').text();
     if (value) {
+      if (p.hasClass('exclusive')) {
+        value = - Math.abs(value);
+      } else {
+        value = Math.abs(value);
+      }
       query += ((query === "") ? "" : "&")
-            + category + "=" + value;
+            + p.attr('id') + "=" + value;
     }
   });
-  console.log("Query: "+query);
   return query;
 }
 
@@ -35,6 +40,7 @@ function getDrillerJson() {
   updateSelector(data, "Mechanics", "mechanic");
   updateSelector(data, "Themes", "theme");
   updateSelector(data, "Engines", "engine");
+  updateSelector(data, "Sides", "side");
   updateSelector(data, "Parties", "party");
   updateSelector(data, "Latitudes", "latitude");
   updateSelector(data, "Longitudes", "longitude");
@@ -56,12 +62,9 @@ getGroupInfo = function(e) {
     var valueGetter = getValue;
   }
   var catId = e.find('div.value').text();
-  console.log("getGroupInfo: "+ category +" = "+catId);
   $.getJSON("http://bohr/driller/"+category+catId, collectParams(), function(data) {
     var g = "<ul>";
     for (d in data) {
-      console.log(d);
-      console.log("Foo: "+idGetter(data[d])+", Bar: "+valueGetter(data[d]));
       g += "<li class='entry'><div class='value'>"+idGetter(data[d])+"<\/div><div class='text'>"+valueGetter(data[d])+"<\/div><\/li>";
     }
     e.removeClass("group");
@@ -117,28 +120,48 @@ updateSelector = function(data, f1, f2) {
   var selected = $('#'+f2+'.selector li.selected');
   if (selected.length > 0 && selected.find('div.value').text() !== "") {
     var dp = data[f1].Entries[0];
+    if (selected.parent().siblings('div.exclude').length > 0) {
+      selected.parent().siblings('div.exclude').addClass('hidden');
+    }
     selected.parent().empty().append(
         getClearFilterLI() +
         "<li class='entry selected'><div class='value'>"+idGetter(dp)+"<\/div><div id='text'>"+valueGetter(dp)+"<\/div><\/li>");
     return;
   }
-  var g = "<li class='header'><div class='value'><\/div><div class='text'>Filter "+f2+"(";
+
+  var g = "<li class='header'><div class='value'><\/div><div class='text'>Filter (";
   if (data[f1].Groups != undefined) {
     var gr = "";
     var num = 0;
     for (d in data[f1].Groups) {
       num += data[f1].Groups[d]["Matches"];
-      gr += "<li class='group hidden'><div class='value'>"+data[f1].Groups[d].GroupId+"<\/div><div class='text'>"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/div><\/li>";
+      gr += "<li class='group hidden'><div class='value'>"+data[f1].Groups[d].GroupId+"<\/div><div class='text'><a href='#'>"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/a><\/div><\/li>";
     }
     g += num+")<\/div><\/li>"+gr;
   } else if (data[f1].Entries.length >= 0) {
     g += data[f1].Entries.length+')<\/div><\/li>'
     for (d in data[f1].Entries) {
       var dp = data[f1].Entries[d];
-      g += "<li class='entry hidden'><div class='value'>"+idGetter(dp)+"<\/div><div class='text'>"+valueGetter(dp)+"<\/div><\/li>";
+      g += "<li class='entry hidden'><div class='value'>"+idGetter(dp)+"<\/div><div class='text'><a href='#'>"+valueGetter(dp)+"<\/a><\/div><\/li>";
     }
   }
-  $('#'+f2).empty().append(g);
+  var target = $('#' + f2);
+  target.empty().append(g);
+  if (target.siblings('div.exclude').length > 0) {
+    target.siblings('div.exclude').removeClass('hidden');
+  }
+}
+
+toggleExclusion = function(e) {
+  var list = $(e).siblings('ul.selector');
+  if (list.hasClass('exclusive')) {
+    list.removeClass('exclusive');
+    e.innerText = "Exclude?";
+  } else {
+    list.addClass('exclusive');
+    e.innerText = "Include?";
+  }
+  getDrillerJson();
 }
 
 getId = function(data){
@@ -166,72 +189,101 @@ getClearFilterLI = function() {
   </head>
   <body>
       <div class='selector'>
+        <div class='info'>Author:</div>
         <ul class='selector map' id='author'>
           <li><div class='value'></div><div class='text'>Author</div></li>
         </ul>
+        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
+        <div class='info'>Publisher:</div>
         <ul class='selector map' id='publisher'>
           <li><div class='value'></div><div class='text'>Publisher</div></li>
         </ul>
+        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
+        <div class='info'>Series:</div>
         <ul class='selector map' id='series'>
           <li><div class='value'></div><div class='text'>Series</div></li>
         </ul>
+        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
+        <div class='info'>Engine:</div>
         <ul class='selector map' id='engine'>
           <li><div class='value'></div><div class='text'>Engine</div></li>
         </ul>
+        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
+        <div class='info'>Theme:</div>
         <ul class='selector map' id='theme'>
           <li><div class='value'></div><div class='text'>Theme</div></li>
         </ul>
+        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
+        <div class='info'>Mechanic:</div>
         <ul class='selector map' id='mechanic'>
           <li><div class='value'></div><div class='text'>Mechanic</div></li>
         </ul>
+        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
+        <div class='info'>Genre:</div>
         <ul class='selector map' id='genre'>
           <li><div class='value'></div><div class='text'>Genre</div></li>
         </ul>
+        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
+        <div class='info'>Side:</div>
+        <ul class='selector map' id='side'>
+          <li><div class='value'></div><div class='text'>Side</div></li>
+        </ul>
+        <div class='exclude'>Exclude?</div>
+      </div>
+      <div class='selector'>
+        <div class='info'>Party:</div>
         <ul class='selector map' id='party'>
           <li><div class='value'></div><div class='text'>Party</div></li>
         </ul>
+        <div class='exclude'>Exclude?</div>
       </div>
       <div class='selector'>
-        <ul class='selector value' id='latitude'>
+        <div class='info'>Latitude:</div>
+        <ul class='selector' id='latitude'>
           <li><div class='value'></div><div class='text'>Latitude</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector value' id='longitude'>
+        <div class='info'>Longitude:</div>
+        <ul class='selector' id='longitude'>
           <li><div class='value'></div><div class='text'>Longitude</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector value' id='fromYear'>
+        <div class='info'>FromYear:</div>
+        <ul class='selector' id='fromYear'>
           <li><div class='value'></div><div class='text'>FromYear</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector value' id='upToYear'>
+        <div class='info'>UpToYear:</div>
+        <ul class='selector' id='upToYear'>
           <li><div class='value'></div><div class='text'>UpToYear</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector value' id='fromRange'>
+        <div class='info'>FromRange:</div>
+        <ul class='selector' id='fromRange'>
           <li><div class='value'></div><div class='text'>FromRange</div></li>
         </ul>
       </div>
       <div class='selector'>
-        <ul class='selector value' id='upToRange'>
+        <div class='info'>UpToRange:</div>
+        <ul class='selector' id='upToRange'>
           <li><div class='value'></div><div class='text'>UpToRange</div></li>
         </ul>
       </div>
