@@ -9,81 +9,99 @@
 
       $(document).ready(function() {
         getDrillerJson();
-        $('.nojs').hide();
-        $('#author').css("color", "red");
+        $('body').on('click', 'ul.selector li', function() { updateList(this) });
       });
 
 function collectParams() {
   var query = "";
-  $(".selector").each(function() {
-    if ($(this).val()) {
-      var box = "input:checked#" + this.id + "box";
-      var v = Math.abs($(this).val());
+  $('ul.selector li.entry.selected').each(function() {
+    var category = $(this).parent().attr('id');
+    var value = $(this).find('div.value').text();
+    if (value) {
       query += ((query === "") ? "" : "&")
-            + this.id + "="
-            + ($(box).length > 0 ? (-1) * v : v);
+            + category + "=" + value;
     }
   });
+  console.log("Query: "+query);
   return query;
-}
-
-updateList = function(item) {
-  var category = $(item).parent().attr("id");
-  var list_type = $(item).attr("class");
-  if (list_type === 'header') {
-    var entries = $(item).siblings('.hidden');
-    console.log("Found "+entries.length+" hidden entries.");
-    if (entries.length > 0) {
-      entries.removeClass('hidden');
-    } else {
-      var entries = $(item).siblings();
-      entries.addClass('hidden');
-    }
-  }
-  console.log("Cat: "+category+", Type: "+list_type);
-
-}
-
-updateLinks = function() {
-  $('ul.selector li').click( function() { updateList(this) });
 }
 
 function getDrillerJson() {
   $.getJSON("http://bohr/driller/q", collectParams(), function(data){
   updateSelector(data, "Authors", "author", getId, getName);
   updateSelector(data, "Publishers", "publisher", getId, getName);
+  updateSelector(data, "Genres", "genre", getId, getName);
+  updateSelector(data, "Series", "series", getId, getName);
+  updateSelector(data, "Mechanics", "mechanic", getId, getName);
+  updateSelector(data, "Themes", "theme", getId, getName);
+  updateSelector(data, "Engines", "engine", getId, getName);
+  updateSelector(data, "Parties", "party", getId, getName);
   $('#info').empty().append('#scenarios: '+ data["NoResults"]);
-  updateLinks();
   });
 }
 
-getId = function(data){
-  return data["Id"];
+getGroupInfo = function(e) {
+  var category = e.parent().attr('id') + "Group/";
+  var catId = e.find('div.value').text();
+  console.log("getGroupInfo: "+ category +" = "+catId);
+  $.getJSON("http://bohr/driller/"+category+catId, collectParams(), function(data) {
+    var g = "<ul>";
+    for (d in data) {
+      console.log(d);
+      console.log("Foo: "+data[d]["Id"]+", Bar: "+data[d]["Name"]);
+      g += "<li class='entry'><div class='value'>"+data[d]["Id"]+"<\/div><div class='text'>"+data[d]["Name"]+"<\/div><\/li>";
+    }
+    e.removeClass("group");
+    e.empty().append(g + "<\/ul>");
+  });
 }
 
-getName = function(data){
-  return data["Name"];
-}
-
-getValue = function(data){
-  return data["Value"];
-}
-
-getGameValue = function(data){
-  return data["Title"]+((data["Subtitle"].length > 0) ? " &mdash; "+data["Subtitle"] : "");
+updateList = function(item) {
+  var e = $(item);
+  var list = e.parent();
+  if (e.hasClass('header')) {
+    var hidden_siblings = e.siblings('.hidden');
+    if (hidden_siblings.length > 0) {
+      hidden_siblings.removeClass('hidden');
+    } else {
+      e.siblings().addClass('hidden');
+    }
+  } else if (e.hasClass('entry')) {
+    if (e.hasClass('selected')){
+      var hidden_siblings = e.siblings('.hidden');
+      if (hidden_siblings.length > 0) {
+        e.siblings().removeClass('hidden');
+      } else {
+        e.siblings().addClass('hidden');
+      }
+    } else {
+      while (!list.hasClass('selector')){
+        list = list.parent();
+      }
+      e.addClass('selected');
+      list.empty();
+      list.append(e);
+      list.append(getClearFilterLI());
+      getDrillerJson();
+    }
+  } else if (e.hasClass('group')) {
+    getGroupInfo(e);
+  } else if (e.hasClass('reset')) {
+    e.siblings('.selected').removeClass('selected');
+    getDrillerJson();
+  }
 }
 
 updateSelector = function(data, f1, f2, idGetter, valueGetter) {
-  if ($('#'+f2+' selected').val() === "") {
-    if (data[f1].Entries.length === 1) {
-      var dp = data[f1].Entries[0];
-      $('#'+f2).empty().append(
-          "<li class='reset'><div class='value><\/div><div class='text'>Clear filter<\/div><\/li>" +
-          "<li><div class='value selected'=\""+idGetter(dp)+"\"><div id='text'>"+valueGetter(dp)+"<\/div><\/li>");
-    }
+  var selected = $('#'+f2+'.selector li.selected');
+  if (selected.length > 0 && selected.find('div.value').text() !== "") {
+    var dp = data[f1].Entries[0];
+    selected.parent().empty().append(
+        getClearFilterLI() +
+        "<li class='entry selected'><div class='value'>"+idGetter(dp)+"<\/div><div id='text'>"+valueGetter(dp)+"<\/div><\/li>");
     return;
   }
-  var g = "<li class='header'><div class='value'><\/div><div class='text'>"+f1+"(";
+  var g = "<li class='header'><div class='value'><\/div><div class='text'>Filter "+f2+"(";
   if (data[f1].Groups != undefined) {
     var gr = "";
     var num = 0;
@@ -102,18 +120,68 @@ updateSelector = function(data, f1, f2, idGetter, valueGetter) {
   $('#'+f2).empty().append(g);
 }
 
+getId = function(data){
+  return data["Id"];
+}
+
+getName = function(data){
+  return data["Name"];
+}
+
+getValue = function(data){
+  return data["Value"];
+}
+
+getGameValue = function(data){
+  return data["Title"]+((data["Subtitle"].length > 0) ? " &mdash; "+data["Subtitle"] : "");
+}
+
+getClearFilterLI = function() {
+  return "<li class='reset hidden'><div class='value'><\/div><div class='text'>Clear filter<\/div><\/li>";
+}
+
     </script>
     <title>JS-Test</title>
   </head>
-  <body id="Schnasenfoo" onload="">
-      <div style='margin:10px'>
+  <body>
+      <div class='selector'>
         <ul class='selector' id='author'>
           <li><div class='value'></div><div class='text'>Author</div></li>
         </ul>
       </div>
-      <div style='margin:10px'>
+      <div class='selector'>
         <ul class='selector' id='publisher'>
           <li><div class='value'></div><div class='text'>Publisher</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector' id='series'>
+          <li><div class='value'></div><div class='text'>Series</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector' id='engine'>
+          <li><div class='value'></div><div class='text'>Engine</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector' id='theme'>
+          <li><div class='value'></div><div class='text'>Theme</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector' id='mechanic'>
+          <li><div class='value'></div><div class='text'>Mechanic</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector' id='genre'>
+          <li><div class='value'></div><div class='text'>Genre</div></li>
+        </ul>
+      </div>
+      <div class='selector'>
+        <ul class='selector' id='party'>
+          <li><div class='value'></div><div class='text'>Party</div></li>
         </ul>
       </div>
     <p id="info"></p>
