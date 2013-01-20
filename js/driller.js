@@ -74,7 +74,7 @@ getGroupInfo = function(e) {
   $.getJSON("http://bohr/driller/"+category+catId, collectParams(), function(data) {
     var g = "<ul>";
     for (var d in data) {
-      g += "<li class='entry'><div class='value'>"+idGetter(data[d])+"<\/div><div class='text'>"+valueGetter(data[d])+"<\/div><\/li>";
+      g += '<li class="entry"><div class="value">'+idGetter(data[d])+'<\/div><div class="text"><a href="#">'+valueGetter(data[d])+'<\/a><\/div><\/li>';
     }
     e.removeClass("group");
     e.empty().append(g + "<\/ul>");
