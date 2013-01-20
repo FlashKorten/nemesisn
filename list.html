@@ -37,6 +37,8 @@ function getDrillerJson() {
   updateSelector(data, "Publishers", "publisher");
   updateSelector(data, "Genres", "genre");
   updateSelector(data, "Series", "series");
+  updateSelector(data, "Leaders", "leader");
+  updateSelector(data, "Games", "game");
   updateSelector(data, "Mechanics", "mechanic");
   updateSelector(data, "Themes", "theme");
   updateSelector(data, "Engines", "engine");
@@ -48,8 +50,20 @@ function getDrillerJson() {
   updateSelector(data, "UpToYears", "upToYear");
   updateSelector(data, "FromRanges", "fromRange");
   updateSelector(data, "UpToRanges", "upToRange");
-  $('#info').empty().append('#scenarios: '+ data["NoResults"]);
+  $('#info').empty().append(listScenarios(data));
   });
+}
+
+listScenarios = function(data) {
+  var scenarios = '<ul class="scenario"><li class="numbers">'+data["NoResults"]+' Scenarios found.<\/li><\/ul>';
+  for (d in data['Scenarios']) {
+    scenarios += "<li>"+data['Scenarios'][d]['Title'];
+    if (data['Scenarios'][d]['Subtitle'] !== "") {
+      scenarios += "&mdash;"+data['Scenarios'][d]['Subtitle'];
+    }
+    scenarios += "<\/li>";
+  }
+  return scenarios;
 }
 
 getGroupInfo = function(e) {
@@ -57,6 +71,9 @@ getGroupInfo = function(e) {
   if (e.parent().hasClass('map')) {
     var idGetter = getId;
     var valueGetter = getName;
+  } else if (e.parent().hasClass('games')) {
+    var idGetter = getId;
+    var valueGetter = getGameValue;
   } else {
     var idGetter = getValue;
     var valueGetter = getValue;
@@ -113,6 +130,9 @@ updateSelector = function(data, f1, f2) {
   if (category.hasClass('map')) {
     var idGetter = getId;
     var valueGetter = getName;
+  } else if (category.hasClass('games')) {
+    var idGetter = getId;
+    var valueGetter = getGameValue;
   } else {
     var idGetter = getValue;
     var valueGetter = getValue;
@@ -188,6 +208,7 @@ getClearFilterLI = function() {
     <title>JS-Test</title>
   </head>
   <body>
+    <div class="block">
       <div class='selector'>
         <div class='info'>Author:</div>
         <ul class='selector map' id='author'>
@@ -195,6 +216,36 @@ getClearFilterLI = function() {
         </ul>
         <div class='exclude'>Exclude?</div>
       </div>
+      <div class='selector'>
+        <div class='info'>Side:</div>
+        <ul class='selector map' id='side'>
+          <li><div class='value'></div><div class='text'>Side</div></li>
+        </ul>
+        <div class='exclude'>Exclude?</div>
+      </div>
+      <div class='selector'>
+        <div class='info'>Party:</div>
+        <ul class='selector map' id='party'>
+          <li><div class='value'></div><div class='text'>Party</div></li>
+        </ul>
+        <div class='exclude'>Exclude?</div>
+      </div>
+      <div class='selector'>
+        <div class='info'>Leader:</div>
+        <ul class='selector map' id='leader'>
+          <li><div class='value'></div><div class='text'>Leader</div></li>
+        </ul>
+        <div class='exclude'>Exclude?</div>
+      </div>
+      <div class='selector'>
+        <div class='info'>Game:</div>
+        <ul class='selector games' id='game'>
+          <li><div class='value'></div><div class='text'>Game</div></li>
+        </ul>
+        <div class='exclude'>Exclude?</div>
+      </div>
+    </div>
+    <div class="block">
       <div class='selector'>
         <div class='info'>Publisher:</div>
         <ul class='selector map' id='publisher'>
@@ -237,20 +288,8 @@ getClearFilterLI = function() {
         </ul>
         <div class='exclude'>Exclude?</div>
       </div>
-      <div class='selector'>
-        <div class='info'>Side:</div>
-        <ul class='selector map' id='side'>
-          <li><div class='value'></div><div class='text'>Side</div></li>
-        </ul>
-        <div class='exclude'>Exclude?</div>
-      </div>
-      <div class='selector'>
-        <div class='info'>Party:</div>
-        <ul class='selector map' id='party'>
-          <li><div class='value'></div><div class='text'>Party</div></li>
-        </ul>
-        <div class='exclude'>Exclude?</div>
-      </div>
+    </div>
+    <div class="block">
       <div class='selector'>
         <div class='info'>Latitude:</div>
         <ul class='selector' id='latitude'>
@@ -286,6 +325,7 @@ getClearFilterLI = function() {
         <ul class='selector' id='upToRange'>
           <li><div class='value'></div><div class='text'>UpToRange</div></li>
         </ul>
+      </div>
       </div>
     <p id="info"></p>
   </body>
