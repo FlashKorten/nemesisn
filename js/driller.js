@@ -174,9 +174,13 @@ updateSelector = function(data, f1, f2) {
   target.empty().append(g);
   if (target.siblings('div.exclude').length > 0) {
     if (hideExclusion) {
+      target.removeClass('exclusive');
       target.siblings('div.exclude').addClass('hidden');
     } else {
       target.siblings('div.exclude').removeClass('hidden');
+      if (!target.hasClass('exclusive')) {
+        target.siblings('div.exclude').each(function() { this.innerText = '[-]'; });
+      }
     }
   }
 };
@@ -185,10 +189,10 @@ toggleExclusion = function(e) {
   var list = $(e).siblings('ul.selector');
   if (list.hasClass('exclusive')) {
     list.removeClass('exclusive');
-    e.innerText = "[-]";
+    e.innerText = '[-]';
   } else {
     list.addClass('exclusive');
-    e.innerText = "[+]";
+    e.innerText = '[+]';
   }
   getDrillerJson();
 };
