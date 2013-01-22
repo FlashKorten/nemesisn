@@ -89,8 +89,10 @@ updateList = function(item) {
     hidden_siblings = e.siblings('.hidden');
     if (hidden_siblings.length > 0) {
       hidden_siblings.removeClass('hidden');
+      list.addClass('overlay');
     } else {
       e.siblings().addClass('hidden');
+      list.removeClass('overlay');
     }
   } else if (e.hasClass('entry')) {
     if (e.hasClass('selected')){
@@ -135,7 +137,7 @@ updateSelector = function(data, f1, f2) {
   }
   var selected = $('#'+f2+'.selector li.selected');
   if (selected.length > 0 && selected.find('div.value').text() !== "") {
-    dp = data[f1].Entries[0];
+    dp = data[f1].Entries[0][0];
     if (selected.parent().siblings('div.exclude').length > 0) {
       selected.parent().siblings('div.exclude').addClass('hidden');
     }
@@ -148,29 +150,28 @@ updateSelector = function(data, f1, f2) {
   var g = "<li class='header'><div class='value'><\/div><div class='text'>Filter (";
   var hideExclusion = false;
   var d;
+  var target = $('#' + f2);
   if (data[f1].Groups !== undefined) {
     var gr = "";
     var num = 0;
-    for (d in data[f1].Groups) {
-      num += data[f1].Groups[d].Matches;
-      gr += "<li class='group hidden'><div class='value'>"+data[f1].Groups[d].GroupId+"<\/div><div class='text'><a href='#'>"+data[f1].Groups[d].GroupId+"  ("+data[f1].Groups[d].Matches+")<\/a><\/div><\/li>";
+    for (d in data[f1].Groups[0]) {
+      num += data[f1].Groups[0][d].Matches;
+      gr += "<li class='group hidden'><div class='value'>"+data[f1].Groups[0][d].GroupId+"<\/div><div class='text'><a href='#'>"+data[f1].Groups[0][d].GroupId+"  ("+data[f1].Groups[0][d].Matches+")<\/a><\/div><\/li>";
     }
     g += num+")<\/div><\/li>"+gr;
-  } else if (data[f1].Entries.length > 1) {
-    g += data[f1].Entries.length+')<\/div><\/li>';
-    for (d in data[f1].Entries) {
-      dp = data[f1].Entries[d];
+  } else if (data[f1].Entries[0].length > 1) {
+    g += data[f1].Entries[0].length+')<\/div><\/li>';
+    for (d in data[f1].Entries[0]) {
+      dp = data[f1].Entries[0][d];
       g += "<li class='entry hidden'><div class='value'>"+idGetter(dp)+"<\/div><div class='text'><a href='#'>"+valueGetter(dp)+"<\/a><\/div><\/li>";
     }
-  } else if (data[f1].Entries.length === 1) {
-      hideExclusion = true;
-      dp = data[f1].Entries[0];
+  } else if (data[f1].Entries[1].length === 1) {
+      dp = data[f1].Entries[0][0];
       g = "<li class='entry'><div class='text unselectable'>"+valueGetter(dp)+"<\/div><\/li>";
-  } else if (data[f1].Entries.length === 0) {
+  } else if (data[f1].Entries[0].length === 0) {
       hideExclusion = true;
-      g = "<li class='entry'><div class='text unselectable'>No matches...<\/div><\/li>";
+      g = "<li class='entry'><div class='text unselectable'>No filter possible.<\/div><\/li>";
   }
-  var target = $('#' + f2);
   target.empty().append(g);
   if (target.siblings('div.exclude').length > 0) {
     if (hideExclusion) {

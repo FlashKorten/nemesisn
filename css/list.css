@@ -4,13 +4,14 @@ div.selector                                 { margin: 10px; }
 ul                                           { list-style: none; }
 .hidden,
 div.selector ul.selector li div.value        { display: none; }
-div.selector ul.selector                     { position: relative; }
 div.selector ul.selector li div.text         { background: #ddd; }
 div.selector ul.selector li.entry div.text   { padding: 2px 8px 8px 12px; }
 div.selector ul.selector li.entry.selected   { background: #fff000 }
 div.block                                    { display: inline-block; position: relative; margin-left: 20px; margin-top: 20px; }
 div.selector                                 { float: left; }
 div.selector ul.selector.exclusive           { color: #f00; }
+
+/*ul.overlay                                   { position: absolute; z-index: 3; }*/
 
 div.selector div.info, div.selector div.exclude { font-weight: bold; background: #ddd; }
 div.selector ul.selector li div.text a       { text-decoration: none; color: #000; }
