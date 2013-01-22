@@ -6,7 +6,7 @@ ul                                           { list-style: none; }
 div.selector ul.selector li div.value        { display: none; }
 div.selector ul.selector li div.text         { background: #ddd; }
 div.selector ul.selector li.entry div.text   { padding: 2px 8px 8px 12px; }
-div.selector ul.selector li.entry.selected   { background: #fff000 }
+div.selector ul.selector li.entry.selected   { background: #65F813; }
 div.block                                    { display: inline-block; position: relative; margin-left: 20px; margin-top: 20px; }
 div.selector                                 { float: left; }
 div.selector ul.selector.exclusive           { color: #f00; }
@@ -15,6 +15,7 @@ div.selector ul.selector.exclusive           { color: #f00; }
 
 div.selector div.info, div.selector div.exclude { font-weight: bold; background: #ddd; }
 div.selector ul.selector li div.text a       { text-decoration: none; color: #000; }
+div.selector ul.selector li.matches div.text { background: #fff000; }
 
 ul.scenario li.numbers                       { font-weight: bold; }
 p#info li                                    { list-style: none; }

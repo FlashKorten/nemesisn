@@ -91,7 +91,7 @@ updateList = function(item) {
       hidden_siblings.removeClass('hidden');
       list.addClass('overlay');
     } else {
-      e.siblings().addClass('hidden');
+      e.siblings('li.entry').addClass('hidden');
       list.removeClass('overlay');
     }
   } else if (e.hasClass('entry')) {
@@ -122,6 +122,7 @@ updateList = function(item) {
 
 updateSelector = function(data, f1, f2) {
   var category = $('#'+f2+'.selector');
+  var selected = $('#'+f2+'.selector li.selected');
   var idGetter;
   var valueGetter;
   var dp;
@@ -135,19 +136,18 @@ updateSelector = function(data, f1, f2) {
     idGetter = getValue;
     valueGetter = getValue;
   }
-  var selected = $('#'+f2+'.selector li.selected');
   if (selected.length > 0 && selected.find('div.value').text() !== "") {
     dp = data[f1].Entries[0][0];
+    var result = "";
     if (selected.parent().siblings('div.exclude').length > 0) {
-      selected.parent().siblings('div.exclude').addClass('hidden');
+      result += getClearFilterLI();
     }
-    selected.parent().empty().append(
-        getClearFilterLI() +
-        "<li class='entry selected'><div class='value'>"+idGetter(dp)+"<\/div><div id='text'>"+valueGetter(dp)+"<\/div><\/li>");
+    result += "<li class='entry selected'><div class='value'>"+idGetter(dp)+"<\/div><div id='text'>"+valueGetter(dp)+"<\/div><\/li>";
+    selected.parent().empty().append(result);
     return;
   }
 
-  var g = "<li class='header'><div class='value'><\/div><div class='text'>Filter (";
+  var g = "";
   var hideExclusion = false;
   var d;
   var target = $('#' + f2);
@@ -158,19 +158,24 @@ updateSelector = function(data, f1, f2) {
       num += data[f1].Groups[0][d].Matches;
       gr += "<li class='group hidden'><div class='value'>"+data[f1].Groups[0][d].GroupId+"<\/div><div class='text'><a href='#'>"+data[f1].Groups[0][d].GroupId+"  ("+data[f1].Groups[0][d].Matches+")<\/a><\/div><\/li>";
     }
-    g += num+")<\/div><\/li>"+gr;
-  } else if (data[f1].Entries[0].length > 1) {
-    g += data[f1].Entries[0].length+')<\/div><\/li>';
-    for (d in data[f1].Entries[0]) {
-      dp = data[f1].Entries[0][d];
-      g += "<li class='entry hidden'><div class='value'>"+idGetter(dp)+"<\/div><div class='text'><a href='#'>"+valueGetter(dp)+"<\/a><\/div><\/li>";
+    g = "<li class='header'><div class='value'><\/div><div class='text'>Filter ("+num+")<\/div><\/li>"+gr;
+    if (data[f1].Groups[1].length > 0) {
+      g = prependMatches(data[f1].Groups[1]) + g;
     }
-  } else if (data[f1].Entries[1].length === 1) {
-      dp = data[f1].Entries[0][0];
-      g = "<li class='entry'><div class='text unselectable'>"+valueGetter(dp)+"<\/div><\/li>";
-  } else if (data[f1].Entries[0].length === 0) {
+  } else if (data[f1].Entries !== undefined) {
+    if (data[f1].Entries[0].length > 0) {
+      g = "<li class='header'><div class='value'><\/div><div class='text'>Filter ("+data[f1].Entries[0].length+')<\/div><\/li>';
+      for (d in data[f1].Entries[0]) {
+        dp = data[f1].Entries[0][d];
+        g += "<li class='entry hidden'><div class='value'>"+idGetter(dp)+"<\/div><div class='text'><a href='#'>"+valueGetter(dp)+"<\/a><\/div><\/li>";
+      }
+    } else {
       hideExclusion = true;
-      g = "<li class='entry'><div class='text unselectable'>No filter possible.<\/div><\/li>";
+    }
+    if (data[f1].Entries[1] !== undefined && data[f1].Entries[1].length > 0) {
+      console.log("Entries Selected: "+ prependMatches(data[f1].Entries[1]));
+      g = prependMatches(data[f1].Entries[1]) + g;
+    }
   }
   target.empty().append(g);
   if (target.siblings('div.exclude').length > 0) {
@@ -184,6 +189,14 @@ updateSelector = function(data, f1, f2) {
       }
     }
   }
+};
+
+prependMatches = function(e) {
+  var g = "";
+  for (var d in e) {
+    g += "<li class='matches'><div class='text'>" + e[d].Name + "<\/div><\/li>";
+  }
+  return g;
 };
 
 toggleExclusion = function(e) {
