@@ -64,7 +64,7 @@ getGroupInfo = function(e) {
   $.getJSON("http://bohr/driller/"+category+catId, collectParams(), function(data) {
     var g = "<ul>";
     for (var d in data) {
-      g += getListEntry('entry' ,idGetter(data[d]), valueGetter(data[d]));
+      g += getLinkedListEntry('entry' ,idGetter(data[d]), valueGetter(data[d]));
     }
     e.removeClass("group");
     e.empty().append(g + "<\/ul>");
@@ -120,7 +120,7 @@ updateSelector = function(data, f1, f2) {
     var result = "";
     if (data[f1].Entries[0].length > 0) {
       dp = data[f1].Entries[0][0];
-      result = getClearFilterLI() + getListEntry('entry selected', idGetter(dp), valueGetter(dp));
+      result = getClearFilterLI() + getLinkedListEntry('entry selected', idGetter(dp), valueGetter(dp));
       selected.parent().empty().append(result);
     }
     return;
@@ -128,6 +128,7 @@ updateSelector = function(data, f1, f2) {
 
   var g = "";
   var hideExclusion = false;
+  var noMatch = false;
   var d;
   var target = $('#' + f2);
   if (data[f1].Groups !== undefined) {
@@ -135,7 +136,7 @@ updateSelector = function(data, f1, f2) {
     var num = 0;
     for (d in data[f1].Groups[0]) {
       num += data[f1].Groups[0][d].Matches;
-      gr += getListEntry('group hidden', data[f1].Groups[0][d].GroupId, data[f1].Groups[0][d].GroupId+' ('+data[f1].Groups[0][d].Matches+')');
+      gr += getLinkedListEntry('group hidden', data[f1].Groups[0][d].GroupId, data[f1].Groups[0][d].GroupId+' ('+data[f1].Groups[0][d].Matches+')');
     }
     if (data[f1].Groups[1].length > 0) {
       g = prependMatches(data[f1].Groups[1]);
@@ -150,9 +151,12 @@ updateSelector = function(data, f1, f2) {
       }
     } else {
       hideExclusion = true;
+      noMatch = true;
     }
     if (data[f1].Entries[1] !== undefined && data[f1].Entries[1].length > 0) {
       g = prependMatches(data[f1].Entries[1]) + g;
+    } else if (noMatch) {
+      g = getListEntry('info', '', 'Nothing...');
     }
   }
   target.empty().append(g);
@@ -194,7 +198,11 @@ prependMatches = function(e) {
 };
 
 getListEntry = function(c, value, text) {
-  return '<li class="'+c+'"><div class="value">'+value+'<\/div><div class="text"><a href="#">'+text+'<\/a><\/div><\/li>';
+  return '<li class="'+c+'"><div class="value">'+value+'<\/div><div class="text">'+text+'<\/div><\/li>';
+};
+
+getLinkedListEntry = function(c, value, text) {
+  return getListEntry(c, value, '<a href="#">'+text+'<\/a>');
 };
 
 getGetterForCategoryType = function(t, e) {
