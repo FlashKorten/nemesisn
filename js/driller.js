@@ -61,13 +61,13 @@ getGroupInfo = function(e) {
   var idGetter = getGetterForCategoryType('id', e.parent());
   var valueGetter = getGetterForCategoryType('value', e.parent());
   var catId = e.find('div.value').text();
+  var g = "";
   $.getJSON("http://bohr/driller/"+category+catId, collectParams(), function(data) {
-    var g = "<ul>";
     for (var d in data) {
       g += getLinkedListEntry('entry' ,idGetter(data[d]), valueGetter(data[d]));
     }
     e.removeClass("group");
-    e.empty().append(g + "<\/ul>");
+    e.empty().append("<ul>" + g + "<\/ul>");
   });
 };
 
@@ -117,11 +117,9 @@ updateSelector = function(data, f1, f2) {
   var dp;
 
   if (selected.length > 0 && selected.find('div.value').text() !== "") {
-    var result = "";
-    if (data[f1].Entries[0].length > 0) {
-      dp = data[f1].Entries[0][0];
-      result = getClearFilterLI() + getLinkedListEntry('entry selected', idGetter(dp), valueGetter(dp));
-      selected.parent().empty().append(result);
+    dp = data[f1].Entries[0];
+    if (dp.length > 0) {
+      selected.parent().empty().append(getClearFilterLI() + getLinkedListEntry('entry selected', idGetter(dp[0]), valueGetter(dp[0])));
     }
     return;
   }
