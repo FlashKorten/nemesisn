@@ -12,7 +12,7 @@ collectParams = function() {
     if (value) {
       if (p.hasClass('exclusive')) {
         value = - Math.abs(value);
-      } else {
+      } else if ($(this).hasClass('map')){
         value = Math.abs(value);
       }
       query += (query === "" ? "" : "&") + p.attr('id') + "=" + value;
