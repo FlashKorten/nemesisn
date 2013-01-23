@@ -9,8 +9,8 @@ div.selector ul.selector li.entry div.text   { padding: 2px 8px 8px 12px; }
 div.selector ul.selector li.entry.selected div.text   { background: #65F813; }
 div.block                                    { display: inline-block; position: relative; margin-left: 20px; margin-top: 20px; }
 div.selector                                 { float: left; }
-div.selector ul.selector.map.exclusive li.header div.text,
-div.selector ul.selector.map.exclusive li.entry.selected div.text a { color: #f00; }
+div.selector ul.selector.exclusive li.header div.text,
+div.selector ul.selector.exclusive li.entry.selected div.text a { color: #f00; }
 
 /*ul.overlay                                   { position: absolute; z-index: 3; }*/
 
