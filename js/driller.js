@@ -179,6 +179,8 @@ fixExclusion = function(target, hideExclusion) {
 
 toggleExclusion = function(e) {
   var list = $(e).siblings('ul.selector');
+  var valueElement = $(list).find('li.entry.selected div.value');
+  $(valueElement).text(valueElement.text() * -1);
   if (list.hasClass('exclusive')) {
     list.removeClass('exclusive');
     e.innerText = '[-]';
