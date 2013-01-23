@@ -64,7 +64,7 @@ getGroupInfo = function(e) {
   $.getJSON("http://bohr/driller/"+category+catId, collectParams(), function(data) {
     var g = "<ul>";
     for (var d in data) {
-      g += '<li class="entry"><div class="value">'+idGetter(data[d])+'<\/div><div class="text"><a href="#">'+valueGetter(data[d])+'<\/a><\/div><\/li>';
+      g += getListEntry('entry' ,idGetter(data[d]), valueGetter(data[d]));
     }
     e.removeClass("group");
     e.empty().append(g + "<\/ul>");
@@ -117,9 +117,12 @@ updateSelector = function(data, f1, f2) {
   var dp;
 
   if (selected.length > 0 && selected.find('div.value').text() !== "") {
-    dp = data[f1].Entries[0][0];
-    var result = getClearFilterLI() + "<li class='entry selected'><div class='value'>"+idGetter(dp)+"<\/div><div id='text'>"+valueGetter(dp)+"<\/div><\/li>";
-    selected.parent().empty().append(result);
+    var result = "";
+    if (data[f1].Entries[0].length > 0) {
+      dp = data[f1].Entries[0][0];
+      result = getClearFilterLI() + getListEntry('entry selected', idGetter(dp), valueGetter(dp));
+      selected.parent().empty().append(result);
+    }
     return;
   }
 
@@ -132,18 +135,18 @@ updateSelector = function(data, f1, f2) {
     var num = 0;
     for (d in data[f1].Groups[0]) {
       num += data[f1].Groups[0][d].Matches;
-      gr += getHiddenListElement('group', data[f1].Groups[0][d].GroupId, data[f1].Groups[0][d].GroupId+' ('+data[f1].Groups[0][d].Matches+')');
+      gr += getListEntry('group hidden', data[f1].Groups[0][d].GroupId, data[f1].Groups[0][d].GroupId+' ('+data[f1].Groups[0][d].Matches+')');
     }
     if (data[f1].Groups[1].length > 0) {
       g = prependMatches(data[f1].Groups[1]);
     }
-    g += getListHeaderWithFilteredAmount(num) + gr;
+    g += getListEntry('header', '', 'Filter ('+num+')') + gr;
   } else if (data[f1].Entries !== undefined) {
     if (data[f1].Entries[0].length > 0) {
-      g = getListHeaderWithFilteredAmount(data[f1].Entries[0].length);
+      g = getListEntry('header', '', 'Filter ('+data[f1].Entries[0].length+')');
       for (d in data[f1].Entries[0]) {
         dp = data[f1].Entries[0][d];
-        g += getHiddenListElement('entry', idGetter(dp), valueGetter(dp));
+        g += getListEntry('entry hidden', idGetter(dp), valueGetter(dp));
       }
     } else {
       hideExclusion = true;
@@ -190,12 +193,8 @@ prependMatches = function(e) {
   return g;
 };
 
-getListHeaderWithFilteredAmount = function(n) {
-  return '<li class="header"><div class="value"><\/div><div class="text">Filter ('+n+')<\/div><\/li>';
-};
-
-getHiddenListElement = function(c, value, text) {
-  return '<li class="'+c+' hidden"><div class="value">'+value+'<\/div><div class="text"><a href="#">'+text+'<\/a><\/div><\/li>';
+getListEntry = function(c, value, text) {
+  return '<li class="'+c+'"><div class="value">'+value+'<\/div><div class="text"><a href="#">'+text+'<\/a><\/div><\/li>';
 };
 
 getGetterForCategoryType = function(t, e) {
