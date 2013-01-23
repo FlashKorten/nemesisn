@@ -15,7 +15,7 @@ collectParams = function() {
       } else {
         value = Math.abs(value);
       }
-      query += ((query === "") ? "" : "&") + p.attr('id') + "=" + value;
+      query += (query === "" ? "" : "&") + p.attr('id') + "=" + value;
     }
   });
   return query;
@@ -58,18 +58,8 @@ listScenarios = function(data) {
 
 getGroupInfo = function(e) {
   var category = e.parent().attr('id') + "Group/";
-  var idGetter;
-  var valueGetter;
-  if (e.parent().hasClass('map')) {
-    idGetter = getId;
-    valueGetter = getName;
-  } else if (e.parent().hasClass('games')) {
-    idGetter = getId;
-    valueGetter = getGameValue;
-  } else {
-    idGetter = getValue;
-    valueGetter = getValue;
-  }
+  var idGetter = getGetterForCategoryType('id', e.parent());
+  var valueGetter = getGetterForCategoryType('value', e.parent());
   var catId = e.find('div.value').text();
   $.getJSON("http://bohr/driller/"+category+catId, collectParams(), function(data) {
     var g = "<ul>";
@@ -107,8 +97,7 @@ updateList = function(item) {
         list = list.parent();
       }
       e.addClass('selected');
-      list.empty();
-      list.append(e);
+      list.empty().append(e);
       list.append(getClearFilterLI());
       getDrillerJson();
     }
@@ -123,26 +112,13 @@ updateList = function(item) {
 updateSelector = function(data, f1, f2) {
   var category = $('#'+f2+'.selector');
   var selected = $('#'+f2+'.selector li.selected');
-  var idGetter;
-  var valueGetter;
+  var idGetter = getGetterForCategoryType('id', category);
+  var valueGetter = getGetterForCategoryType('value', category);
   var dp;
-  if (category.hasClass('map')) {
-    idGetter = getId;
-    valueGetter = getName;
-  } else if (category.hasClass('games')) {
-    idGetter = getId;
-    valueGetter = getGameValue;
-  } else {
-    idGetter = getValue;
-    valueGetter = getValue;
-  }
+
   if (selected.length > 0 && selected.find('div.value').text() !== "") {
     dp = data[f1].Entries[0][0];
-    var result = "";
-    if (selected.parent().siblings('div.exclude').length > 0) {
-      result += getClearFilterLI();
-    }
-    result += "<li class='entry selected'><div class='value'>"+idGetter(dp)+"<\/div><div id='text'>"+valueGetter(dp)+"<\/div><\/li>";
+    var result = getClearFilterLI() + "<li class='entry selected'><div class='value'>"+idGetter(dp)+"<\/div><div id='text'>"+valueGetter(dp)+"<\/div><\/li>";
     selected.parent().empty().append(result);
     return;
   }
@@ -156,28 +132,31 @@ updateSelector = function(data, f1, f2) {
     var num = 0;
     for (d in data[f1].Groups[0]) {
       num += data[f1].Groups[0][d].Matches;
-      gr += "<li class='group hidden'><div class='value'>"+data[f1].Groups[0][d].GroupId+"<\/div><div class='text'><a href='#'>"+data[f1].Groups[0][d].GroupId+"  ("+data[f1].Groups[0][d].Matches+")<\/a><\/div><\/li>";
+      gr += getHiddenListElement('group', data[f1].Groups[0][d].GroupId, data[f1].Groups[0][d].GroupId+' ('+data[f1].Groups[0][d].Matches+')');
     }
-    g = "<li class='header'><div class='value'><\/div><div class='text'>Filter ("+num+")<\/div><\/li>"+gr;
     if (data[f1].Groups[1].length > 0) {
-      g = prependMatches(data[f1].Groups[1]) + g;
+      g = prependMatches(data[f1].Groups[1]);
     }
+    g += getListHeaderWithFilteredAmount(num) + gr;
   } else if (data[f1].Entries !== undefined) {
     if (data[f1].Entries[0].length > 0) {
-      g = "<li class='header'><div class='value'><\/div><div class='text'>Filter ("+data[f1].Entries[0].length+')<\/div><\/li>';
+      g = getListHeaderWithFilteredAmount(data[f1].Entries[0].length);
       for (d in data[f1].Entries[0]) {
         dp = data[f1].Entries[0][d];
-        g += "<li class='entry hidden'><div class='value'>"+idGetter(dp)+"<\/div><div class='text'><a href='#'>"+valueGetter(dp)+"<\/a><\/div><\/li>";
+        g += getHiddenListElement('entry', idGetter(dp), valueGetter(dp));
       }
     } else {
       hideExclusion = true;
     }
     if (data[f1].Entries[1] !== undefined && data[f1].Entries[1].length > 0) {
-      console.log("Entries Selected: "+ prependMatches(data[f1].Entries[1]));
       g = prependMatches(data[f1].Entries[1]) + g;
     }
   }
   target.empty().append(g);
+  fixExclusion(target, hideExclusion);
+};
+
+fixExclusion = function(target, hideExclusion) {
   if (target.siblings('div.exclude').length > 0) {
     if (hideExclusion) {
       target.removeClass('exclusive');
@@ -191,14 +170,6 @@ updateSelector = function(data, f1, f2) {
   }
 };
 
-prependMatches = function(e) {
-  var g = "";
-  for (var d in e) {
-    g += "<li class='matches'><div class='text'>" + e[d].Name + "<\/div><\/li>";
-  }
-  return g;
-};
-
 toggleExclusion = function(e) {
   var list = $(e).siblings('ul.selector');
   if (list.hasClass('exclusive')) {
@@ -209,6 +180,32 @@ toggleExclusion = function(e) {
     e.innerText = '[+]';
   }
   getDrillerJson();
+};
+
+prependMatches = function(e) {
+  var g = "";
+  for (var d in e) {
+    g += "<li class='matches'><div class='text'>" + e[d].Name + "<\/div><\/li>";
+  }
+  return g;
+};
+
+getListHeaderWithFilteredAmount = function(n) {
+  return '<li class="header"><div class="value"><\/div><div class="text">Filter ('+n+')<\/div><\/li>';
+};
+
+getHiddenListElement = function(c, value, text) {
+  return '<li class="'+c+' hidden"><div class="value">'+value+'<\/div><div class="text"><a href="#">'+text+'<\/a><\/div><\/li>';
+};
+
+getGetterForCategoryType = function(t, e) {
+  if (e.hasClass('map')) {
+    return t === "id" ? getId : getName;
+  } else if (e.hasClass('games')) {
+    return t === "id" ? getId : getGameValue;
+  } else {
+    return getValue;
+  }
 };
 
 getId = function(data){
