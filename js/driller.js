@@ -147,7 +147,7 @@ updateSelector = function(data, f1, f2) {
       g = getListEntryWithoutValue('header', 'Filter ('+data[f1].Entries[0].length+')');
       for (d in data[f1].Entries[0]) {
         dp = data[f1].Entries[0][d];
-        g += getListEntry('entry hidden', idGetter(dp), valueGetter(dp));
+        g += getLinkedListEntry('entry hidden', idGetter(dp), valueGetter(dp));
       }
     } else {
       hideExclusion = true;
