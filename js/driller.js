@@ -141,10 +141,10 @@ updateSelector = function(data, f1, f2) {
     if (data[f1].Groups[1].length > 0) {
       g = prependMatches(data[f1].Groups[1]);
     }
-    g += getListEntry('header', '', 'Filter ('+num+')') + gr;
+    g += getListEntryWithoutValue('header', 'Filter ('+num+')') + gr;
   } else if (data[f1].Entries !== undefined) {
     if (data[f1].Entries[0].length > 0) {
-      g = getListEntry('header', '', 'Filter ('+data[f1].Entries[0].length+')');
+      g = getListEntryWithoutValue('header', 'Filter ('+data[f1].Entries[0].length+')');
       for (d in data[f1].Entries[0]) {
         dp = data[f1].Entries[0][d];
         g += getListEntry('entry hidden', idGetter(dp), valueGetter(dp));
@@ -156,7 +156,7 @@ updateSelector = function(data, f1, f2) {
     if (data[f1].Entries[1] !== undefined && data[f1].Entries[1].length > 0) {
       g = prependMatches(data[f1].Entries[1]) + g;
     } else if (noMatch) {
-      g = getListEntry('info', '', 'Nothing...');
+      g = getListEntryWithoutValue('info', 'Nothing...');
     }
   }
   target.empty().append(g);
@@ -194,13 +194,17 @@ toggleExclusion = function(e) {
 prependMatches = function(e) {
   var g = "";
   for (var d in e) {
-    g += "<li class='matches'><div class='text'>" + e[d].Name + "<\/div><\/li>";
+    g += getListEntryWithoutValue('matches', e[d].Name);
   }
   return g;
 };
 
 getListEntry = function(c, value, text) {
   return '<li class="'+c+'"><div class="value">'+value+'<\/div><div class="text">'+text+'<\/div><\/li>';
+};
+
+getListEntryWithoutValue = function(c, text) {
+  return '<li class="'+c+'"><div class="text">'+text+'<\/div><\/li>';
 };
 
 getLinkedListEntry = function(c, value, text) {
