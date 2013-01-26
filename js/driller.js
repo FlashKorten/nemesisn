@@ -74,25 +74,13 @@ getGroupInfo = function($e) {
 updateList = function(item) {
   var $e = $(item);
   var $list = $e.parent();
-  var $hidden_siblings;
   if ($e.hasClass('header')) {
-    $hidden_siblings = $e.siblings('li.hidden');
-    if ($hidden_siblings.length > 0) {
-      $hidden_siblings.removeClass('hidden');
-      $list.addClass('overlay');
-    } else {
-      $e.siblings('li.entry').addClass('hidden');
-      $e.siblings('li.group').addClass('hidden');
-      $list.removeClass('overlay');
-    }
+    $list.toggleClass('overlay');
+    $e.siblings('li.entry').toggleClass('hidden');
+    $e.siblings('li.group').toggleClass('hidden');
   } else if ($e.hasClass('entry')) {
     if ($e.hasClass('selected')){
-      $hidden_siblings = $e.siblings('.hidden');
-      if ($hidden_siblings.length > 0) {
-        $e.siblings().removeClass('hidden');
-      } else {
-        $e.siblings().addClass('hidden');
-      }
+      $e.siblings().toggleClass('hidden');
     } else {
       if (!$list.hasClass('selector')){
         var v = $e.data('Value');
@@ -172,14 +160,11 @@ updateSelector = function(data, f1, f2) {
 
 fixExclusion = function($target, hideExclusion) {
   if ($target.siblings('div.exclude').length > 0) {
+      $target.siblings('div.exclude').toggleClass('hidden', hideExclusion);
     if (hideExclusion) {
       $target.removeClass('exclusive');
-      $target.siblings('div.exclude').addClass('hidden');
-    } else {
-      $target.siblings('div.exclude').removeClass('hidden');
-      if (! $target.hasClass('exclusive')) {
-        $target.siblings('div.exclude').each(function() { this.innerText = '[-]'; });
-      }
+    } else if (! $target.hasClass('exclusive')) {
+      $target.siblings('div.exclude').each(function() { this.innerText = '[-]'; });
     }
   }
 };
@@ -192,13 +177,8 @@ toggleExclusion = function(item) {
   if (value) {
     $valueElement.data('Value', value * -1);
   }
-  if ($list.hasClass('exclusive')) {
-    $list.removeClass('exclusive');
-    $e.text('[-]');
-  } else {
-    $list.addClass('exclusive');
-    $e.text('[+]');
-  }
+  $e.text($list.hasClass('exclusive') ? '[-]' : '[+]');
+  $list.toggleClass('exclusive');
   getDrillerJson();
 };
 
