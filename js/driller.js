@@ -117,14 +117,12 @@ updateSelector = function(data, f1, f2) {
     return;
   }
 
-  var hideExclusion = false;
   var noMatch = false;
   var d;
   var $target = $('#' + f2);
-  var numberOfEntries;
+  var num = 0;
   $target.empty();
   if (data[f1].Groups !== undefined) {
-    var num = 0;
     var matches;
     var groupId;
     for (d in data[f1].Groups[0]) {
@@ -138,15 +136,14 @@ updateSelector = function(data, f1, f2) {
     }
     $target.prepend(getListEntryWithoutValue('header', 'Filter (' + num + ')'));
   } else if (data[f1].Entries !== undefined) {
-    numberOfEntries = data[f1].Entries[0].length;
-    if (numberOfEntries > 0) {
-      $target.append(getListEntryWithoutValue('header', 'Filter (' + numberOfEntries + ')'));
+    num = data[f1].Entries[0].length;
+    if (num > 0) {
+      $target.append(getListEntryWithoutValue('header', 'Filter (' + num + ')'));
       for (d in data[f1].Entries[0]) {
         dp = data[f1].Entries[0][d];
         $target.append(getLinkedListEntry('entry hidden', idGetter(dp), valueGetter(dp)));
       }
     } else {
-      hideExclusion = true;
       noMatch = true;
     }
     if (data[f1].Entries[1].length > 0) {
@@ -155,16 +152,17 @@ updateSelector = function(data, f1, f2) {
       $target.append(getListEntryWithoutValue('info', 'Nothing...'));
     }
   }
-  fixExclusion($target, hideExclusion);
+  fixExclusion($target, noMatch);
 };
 
 fixExclusion = function($target, hideExclusion) {
-  if ($target.siblings('div.exclude').length > 0) {
-      $target.siblings('div.exclude').toggleClass('hidden', hideExclusion);
+  var $siblings = $target.siblings('div.exclude');
+  if ($siblings.length > 0) {
+    $siblings.toggleClass('hidden', hideExclusion);
     if (hideExclusion) {
       $target.removeClass('exclusive');
     } else if (! $target.hasClass('exclusive')) {
-      $target.siblings('div.exclude').each(function() { this.innerText = '[-]'; });
+      $siblings.each(function() { this.innerText = '[-]'; });
     }
   }
 };
