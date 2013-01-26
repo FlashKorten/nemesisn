@@ -2,25 +2,21 @@
 body                                         { font: 14px Helvetica, Sans-Serif; width: 800px; margin: 25px auto; }
 div.selector                                 { margin: 10px; }
 ul                                           { list-style: none; }
-.hidden,
-div.selector ul.selector li div.value        { display: none; }
-div.selector ul.selector li div.text         { background: #ddd; }
-div.selector ul.selector li.entry div.text   { padding: 2px 8px 8px 12px; }
-div.selector ul.selector li.entry.selected div.text   { background: #65F813; }
+.hidden                                      { display: none; }
+div.selector ul.selector li { background: #ddd; }
+div.selector ul.selector li.entry { padding: 2px 8px 8px 12px; }
+div.selector ul.selector li.entry.selected { background: #65F813; }
 div.block                                    { display: inline-block; position: relative; margin-left: 20px; margin-top: 20px; }
 div.selector                                 { float: left; }
-div.selector ul.selector.exclusive li.header div.text,
-div.selector ul.selector.exclusive li.entry.selected div.text a { color: #f00; }
+div.selector ul.selector.exclusive li.header,
+div.selector ul.selector.exclusive li.entry.selected a { color: #f00; }
 
-/*ul.overlay                                   { position: absolute; z-index: 3; }*/
+/* ul.overlay                                   { position: absolute; z-index: 3; } */
 
 div.selector div.info, div.selector div.exclude { font-weight: bold; background: #ddd; }
-div.selector ul.selector li div.text a       { text-decoration: none; color: #000; }
-div.selector ul.selector li.matches div.text { background: #fff000; }
+div.selector ul.selector li a       { text-decoration: none; color: #000; }
+div.selector ul.selector li.matches { background: #fff000; }
 
 ul.scenario li.numbers                       { font-weight: bold; }
 p#info li                                    { list-style: none; }
-div.selector ul.selector li div.text a:hover { background: #ffa500; }
-
-div.selector ul.selector li.entry div.text.unselectable { background: #0ae; }
-
+div.selector ul.selector li a:hover { background: #ffa500; }
