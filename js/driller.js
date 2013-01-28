@@ -107,13 +107,7 @@ updateSelector = function(data, f1, f2) {
   var dp;
 
   if ($selected.length > 0) {
-    dp = data[f1].Entries[0];
-    if (dp.length > 0) {
-      $selected.parent()
-        .empty()
-        .append(getClearFilterEntry())
-        .append(getLinkedListEntry('entry selected', idGetter(dp[0]), valueGetter(dp[0])));
-    }
+    setSelectedEntry($selected, data[f1], idGetter, valueGetter);
     return;
   }
 
@@ -123,26 +117,11 @@ updateSelector = function(data, f1, f2) {
   var num = 0;
   $target.empty();
   if (data[f1].Groups !== undefined) {
-    var matches;
-    var groupId;
-    for (d in data[f1].Groups[0]) {
-      matches = data[f1].Groups[0][d].Matches;
-      groupId = data[f1].Groups[0][d].GroupId;
-      num += matches;
-      $target.append(getLinkedListEntry('group hidden', groupId, groupId + ' (' + matches + ')'));
-    }
-    if (data[f1].Groups[1].length > 0) {
-      prependMatches(data[f1].Groups[1], $target, valueGetter);
-    }
-    $target.prepend(getListEntryWithoutValue('header', 'Filter (' + num + ')'));
+    setGroupEntries($target, data[f1], idGetter, valueGetter);
   } else if (data[f1].Entries !== undefined) {
     num = data[f1].Entries[0].length;
     if (num > 0) {
-      $target.append(getListEntryWithoutValue('header', 'Filter (' + num + ')'));
-      for (d in data[f1].Entries[0]) {
-        dp = data[f1].Entries[0][d];
-        $target.append(getLinkedListEntry('entry hidden', idGetter(dp), valueGetter(dp)));
-      }
+      setEntries($target, data[f1], num, idGetter, valueGetter);
     } else {
       noMatch = true;
     }
@@ -153,6 +132,42 @@ updateSelector = function(data, f1, f2) {
     }
   }
   fixExclusion($target, noMatch);
+};
+
+setSelectedEntry = function($selected, data, idGetter, valueGetter){
+  var dp = data.Entries[0];
+  if (dp.length > 0) {
+    $selected.parent()
+      .empty()
+      .append(getClearFilterEntry())
+      .append(getLinkedListEntry('entry selected', idGetter(dp[0]), valueGetter(dp[0])));
+  }
+};
+
+setGroupEntries = function($target, data, idGetter, valueGetter) {
+  var dp = data.Groups;
+  var matches;
+  var groupId;
+  var num = 0;
+  for (var d in dp[0]) {
+    matches = dp[0][d].Matches;
+    groupId = dp[0][d].GroupId;
+    num += matches;
+    $target.append(getLinkedListEntry('group hidden', groupId, groupId + ' (' + matches + ')'));
+  }
+  if (dp[1].length > 0) {
+    prependMatches(dp[1], $target, valueGetter);
+  }
+  $target.prepend(getListEntryWithoutValue('header', 'Filter (' + num + ')'));
+};
+
+setEntries = function($target, data, num, idGetter, valueGetter) {
+  data = data.Entries[0];
+  $target.append(getListEntryWithoutValue('header', 'Filter (' + num + ')'));
+  for (var d in data) {
+    dp = data[d];
+    $target.append(getLinkedListEntry('entry hidden', idGetter(dp), valueGetter(dp)));
+  }
 };
 
 fixExclusion = function($target, hideExclusion) {
