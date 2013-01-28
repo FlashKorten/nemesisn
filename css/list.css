@@ -3,20 +3,26 @@ body                                         { font: 14px Helvetica, Sans-Serif;
 div.selector                                 { margin: 10px; }
 ul                                           { list-style: none; }
 .hidden                                      { display: none; }
-div.selector ul.selector li { background: #ddd; }
-div.selector ul.selector li.entry { padding: 2px 8px 8px 12px; }
-div.selector ul.selector li.entry.selected { background: #65F813; }
-div.block                                    { display: inline-block; position: relative; margin-left: 20px; margin-top: 20px; }
-div.selector                                 { float: left; }
-div.selector ul.selector.exclusive li.header,
-div.selector ul.selector.exclusive li.entry.selected a { color: #f00; }
+p#info li                                    { list-style: none; }
+ul.scenario li.numbers                       { font-weight: bold; }
 
 /* ul.overlay                                   { position: absolute; z-index: 3; } */
 
-div.selector div.info, div.selector div.exclude { font-weight: bold; background: #ddd; }
-div.selector ul.selector li a       { text-decoration: none; color: #000; }
-div.selector ul.selector li.matches { background: #fff000; }
-
-ul.scenario li.numbers                       { font-weight: bold; }
-p#info li                                    { list-style: none; }
-div.selector ul.selector li a:hover { background: #ffa500; }
+div.block                                    { display: inline-block; position: relative; margin-left: 20px; margin-top: 20px; }
+div.selector                                 { float: left; }
+div.selector ul.selector li                  { background: #ddd; }
+div.selector ul.selector li.entry            { padding: 2px 8px 8px 12px; }
+div.selector ul.selector li.entry.selected   { background: #65F813; }
+div.selector ul.selector li a                { text-decoration: none; color: #000; }
+div.selector ul.selector li a:hover          { background: #ffa500; }
+div.selector ul.selector li.matches          { background: #fff000; }
+div.selector ul.selector.exclusive li.header,
+div.selector ul.selector.exclusive li.entry.selected a {
+  background: #f00;
+  color: #fff;
+  font-weight: bold;
+}
+div.selector div.info, div.selector div.exclude {
+  font-weight: bold;
+  background: #ddd;
+}
