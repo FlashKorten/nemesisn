@@ -29,6 +29,7 @@ getDrillerJson = function() {
   updateSelector(data, "Genres", "genre");
   updateSelector(data, "Series", "series");
   updateSelector(data, "Leaders", "leader");
+  updateSelector(data, "Specials", "special");
   updateSelector(data, "Games", "game");
   updateSelector(data, "Mechanics", "mechanic");
   updateSelector(data, "Themes", "theme");
